@@ -1,3 +1,4 @@
 # default configuration file
 
 site_name: 'Demo site'
+database_uri : postgresql://kola:romromrom1@localhost:5432/demo
