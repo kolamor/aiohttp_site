@@ -1,7 +1,9 @@
 import argparse
 import asyncio
 import aiohttp
+from demo.settings import load_config
 from demo import create_app
+
 
 
 
@@ -17,9 +19,11 @@ parser.add_argument('--port', help='Port to accept connections', default='5000')
 parser.add_argument('--reload',
 		action='store_true',
 		help='Autoreload code on change')
+parser.add_argument('-c', '--config', type=argparse.FileType('r'),
+		help='Path to congifuration file')
 
 args = parser.parse_args()
-app = create_app()
+app = create_app(config=load_config(args.config))
 
 if args.reload:
 	print('Start with code reload')
