@@ -3,40 +3,33 @@ users
 {% block auth1 %}
 
 	
-
+<h3>users</h3>
 
 	<div class="row my-0 py-0">
 
 		<div class="col-1 py-0 my-0">
-			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.5em; "> 					
-					Id
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.5em; "> 		Id
 			</div>
 		</div>
 
 		<div class="col-2 py-0 my-0">
-			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.5em; "> 					
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.5em; "> 	
 					login
 			</div>
 		</div>
-		
-		<div class="col-3 py-0 my-0">
-			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.5em; ">password
-					
-			</div>
-			
-		</div>
-
 		<div class="col-3 py-0 my-0">
 			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.5em; ">
- 
-					email
+				password					
 			</div>
 		</div>
-
 		<div class="col-3 py-0 my-0">
 			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.5em; ">
- 
-					admin_privilege
+ 					email
+			</div>
+		</div>
+		<div class="col-3 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.5em; ">
+ 					admin_privilege
 			</div>
 		</div>
 	</div>
@@ -45,45 +38,30 @@ users
 
 {% for user in users %}
 
-
-
-
-
-
 	<div class="row">
-		<div class="col-1 my-0">
+		<div class="col-1 my-0 ">
 			<div class="shadow p-1 mb-5 bg-white rounded">
- 					
-					<a href="">{{ user['id'] }}</a> 
+ 				{{ user['id'] }}
 			</div>
 		</div>
-
 		<div class="col-2 my-0">
 			<div class="shadow p-1 mb-5 bg-white rounded">
- 					
-					<a href="">{{ user['login'] }}</a> 
+ 					<a href="{{ url ('edit_user', name=user['login']) }}">{{ user['login'] }}</a> 
 			</div>
 		</div>
-		
-		<div class="col-3 my-0">
-			<div class="shadow p-1 mb-5 bg-white rounded">{{ user['password'] }}
-
-					
-			</div>
-			
-		</div>
-
 		<div class="col-3 my-0">
 			<div class="shadow p-1 mb-5 bg-white rounded">
- 
-					{{ user['email'] }}
+				{{ user['password'] }}
 			</div>
 		</div>
-
 		<div class="col-3 my-0">
 			<div class="shadow p-1 mb-5 bg-white rounded">
- 
-					{{ user['admin_privilege'] }}
+ 				{{ user['email'] }}
+			</div>
+		</div>
+		<div class="col-3 my-0">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ user['admin_privilege'] }}
 			</div>
 		</div>
 

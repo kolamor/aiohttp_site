@@ -11,14 +11,15 @@ def setup_routes(app):
 	#app.router.add_route('POST', '/login', frontend.login_post)
 
 	app.router.add_routes([
-						web.get('/login', frontend.login, name='login'),
+						web.get('/login', frontend.login, 				name='login'),
 						web.post('/login', frontend.login_post),
-						web.get('/signup', frontend.signup, name='signup'),
+						web.get('/signup', frontend.signup, 			name='signup'),
 						web.post('/signup', frontend.signup_post, ),
-						web.get('/logout', frontend.logout, name='logout'),
-						web.post('/logout', frontend.logout_post, name="logout_post"),
-						web.get('/admin/users', frontend.admin_user,  name='admin_user'),
-						web.get('/admin', frontend.admin, name='admin'),
+						web.get('/logout', frontend.logout, 			name='logout'),
+						web.post('/logout', frontend.logout_post, 		name="logout_post"),
+						web.get('/admin/users', frontend.admin_users,   name='admin_user'),
+						web.get('/admin', frontend.admin, 				name='admin'),
+						web.get('/admin/users/{name}', frontend.edit_user, name='edit_user')
 						
 
 						])

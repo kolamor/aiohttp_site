@@ -141,7 +141,7 @@ async def admin(request):
 
 
 @template('/admin/users.html')
-async def admin_user(request):
+async def admin_users(request):
 	await admin_privilege_valid(request)
 	session = await get_session(request)
 	async with request.app['db'].acquire() as conn:
@@ -154,8 +154,22 @@ async def admin_user(request):
 				'request' : request,
 				'session' : session,
 		}
-
 	return context
+
+
+@template('/admin/edit_user.html')
+async def edit_user(request):
+	print (dir(request))
+	name = request.match_info.get('name')
+	async with request.app['db'].acquire() as conn:
+		query = select([ db.user_d ] ).where(db.user_d.c.login == name)
+		print('--', query)
+		user = await conn.fetchrow(query)
+	return {'name' : name,
+			'request' : request,
+			'user' : user,
+			'session' : request.session,
+	 }
 
 
 
