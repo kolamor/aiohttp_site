@@ -1,4 +1,7 @@
 # default configuration file
 
-site_name: 'Demo site'
+site_name: 'Demo site111'
 database_uri : postgresql://kola:romromrom1@localhost:5432/demo
+secret_key: 'TyzLMReLCWUiPsTFMActw_0dtEU7kAcFXHNYYm64DNI='
+BASE_DIR: os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+STATIC_DIR: '/static'
