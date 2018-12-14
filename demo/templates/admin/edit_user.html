@@ -14,36 +14,42 @@ users
 			
 	
 
-<form>
+<form method="POST" accept-charset="utf-8" enctype="application/x-www-form-urlencoded">
 	<label for="">Id</label>
-	<input class="form-control" type="text" placeholder="{{user.id}}" readonly>
+	<input class="form-control" type="text" placeholder="{{ user.id }}" readonly name="id" value="{{user.id}}">
 
 	<div class="form-group">
     <label for="exampleInputPassword1">Login</label>
-    <input type="login" class="form-control" id="exampleInputPassword1" placeholder="{{user.login}}">
+    <input type="login" class="form-control" id="exampleInputPassword1" placeholder="{{user.login}}" name="login" value="{{ user.login }}">
   </div>
 
   
   <div class="form-group">
   	
     <label for="exampleInputEmail1">Email address</label>
-    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="{{ user.email }}">
+    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="{{ user.email }}" name="email" value="{{ user.email }}">
     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
   </div>
   <div class="form-group">
     <label for="exampleInputPassword1">Password</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="{{user.password}}">
+    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="{{user.password}}" name="password" value="{{ user.password }}">
   </div>
 
   <div class="form-group">
     <label for="exampleInputPassword1">admin_privilege</label>
-    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="{{user.admin_privilege}}">
+    <input type="password" class="form-control" id="exampleInputPassword1" readonly placeholder="{{user.admin_privilege}}">
   </div>
   
 
   <div class="form-group form-check">
-    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-    <label class="form-check-label" for="exampleCheck1">Check me out</label>
+  	{% if user.admin_privilege %}
+
+    	<input type="checkbox" class="form-check-input" id="exampleCheck1" value="True" checked name="admin_privilege"  >
+    {% else %}
+    	<input type="checkbox" class="form-check-input" id="exampleCheck1" value="True" name="admin_privilege"  >
+    {% endif %}
+
+    <label class="form-check-label" for="exampleCheck1">admin_privilege</label>
   </div>
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>

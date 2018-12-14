@@ -8,7 +8,7 @@ from .. import db
 import os
 
 from aiohttp_session import get_session, session_middleware, setup
-from ..models.admin import admin_privilege_valid
+from ..models.admin import admin_privilege_valid, edit_user_db
 
 
 @template('index.html')
@@ -64,6 +64,7 @@ async def login_post(request):
 		print('none')
 		location = request.app.router['login'].url_for()
 		return aiohttp.web.HTTPFound(location=location)
+
 
 @template('signup.html')
 async def signup(request):
@@ -130,8 +131,6 @@ async def admin(request):
 
 	session = await get_session(request)
 	await admin_privilege_valid(request)
-	
-	
 	context ={
 			'session' : session,
 			'request' : request,
@@ -159,20 +158,33 @@ async def admin_users(request):
 
 @template('/admin/edit_user.html')
 async def edit_user(request):
-	print (dir(request))
+	await admin_privilege_valid(request)
 	name = request.match_info.get('name')
 	async with request.app['db'].acquire() as conn:
 		query = select([ db.user_d ] ).where(db.user_d.c.login == name)
-		print('--', query)
 		user = await conn.fetchrow(query)
-	return {'name' : name,
+		context = {'name' : name,
 			'request' : request,
 			'user' : user,
 			'session' : request.session,
 	 }
+	return context
 
+async def edit_user_post(request):
+	name = request.match_info.get('name')
+	user_id = await edit_user_db(request, name)
 
-
+	async with request.app['db'].acquire() as conn:
+		query = select([ db.user_d ] ).where(db.user_d.c.id == user_id)
+		user = await conn.fetchrow(query)
+	
+	context = {
+		'name' : user['login'],
+		'session' : request.session,
+		'user' : user,
+		'request' : request, 
+	}
+	return render_template('/admin/edit_user.html', request, context)
 		
 	
 
