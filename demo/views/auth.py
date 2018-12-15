@@ -12,7 +12,7 @@ from aiohttp_session import get_session, session_middleware, setup
 
 
 
-@template('login.html')
+@template('/auth/login.html')
 async def login ( request):
 	session = await get_session(request)
 	
@@ -49,7 +49,7 @@ async def login_post(request):
 		return aiohttp.web.HTTPFound(location=location)
 
 
-@template('signup.html')
+@template('/auth/signup.html')
 async def signup(request):
 	session = await get_session(request)
 	return {'session' : session }
@@ -89,7 +89,7 @@ async def signup_post(request):
 
 
 
-@template('logout.html')
+@template('/auth/logout.html')
 async def logout(request):
 	session = await get_session(request)
 	if  'user' not in session:

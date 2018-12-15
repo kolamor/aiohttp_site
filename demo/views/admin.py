@@ -12,7 +12,7 @@ from aiohttp_session import get_session, session_middleware, setup
 
 
 
-@template('admin.html')
+@template('/admin/admin.html')
 async def admin(request):
 
 	session = await get_session(request)
