@@ -1,0 +1,56 @@
+edit news
+{% extends "/admin/admin.html" %}
+
+{% block auth1 %}
+{% endblock %}
+
+{% block news %}
+
+<div class="container">
+	<div class="row">
+		<div class="col-8">
+			<form method="POST" accept-charset="utf-8" enctype="multipart/form-data">
+				<label for="">Id</label>
+					<input class="form-control" type="text" placeholder="{{ news.id }}" readonly name="id" value="{{news.id}}">
+				<label for="">Title</label>
+					<input class="form-control" type="text" placeholder="{{ news.title }}" name="title" value="{{news.title}}">
+				<label for="">slug</label>
+					<input class="form-control" type="text" placeholder="{{ news.slug }}" name="slug" value="{{news.slug}}">
+				<label for="">user</label>
+					<input class="form-control" type="text" placeholder="{{ news.user_id }}" name="user" value="{{news.user_id}}">
+				<label for="">category</label>
+					<input class="form-control" type="text" placeholder="{{ news.category_id }}" name="category" value="{{news.category_id}}" >
+
+
+				
+    			<label for="" charset="utf-8">text</label>
+    				<textarea class="form-control"  type="text"  placeholder="{{ news.text }}" name="text"  rows="4">{{ news.text }}</textarea>
+    			<label for="" charset="utf-8">text_min</label>
+    				<textarea class="form-control"  type="text"  placeholder="{{ news.text_min}}" name="text_min"  rows="3">{{ news.text_min }}</textarea>
+    			<label for="" charset="utf-8">description</label>
+    				<textarea class="form-control"  type="text"  placeholder="{{ news.description}}" name="description"  rows="2">{{ news.description }}</textarea>
+
+    			<label for="">likes</label>
+					<input class="form-control" type="text" placeholder="{{ news.likes }}" name="likes" value="{{news.likes}}" >
+
+				<label for="">date_created</label>
+					<input class="form-control" type="text" placeholder="{{ news.date_created}}" readonly  value="{{date_created}}">
+				<label for="">date_change</label>
+					<input class="form-control" type="text" placeholder="{{ news.date_change}}" readonly  value="{{date_change}}">
+
+
+
+				<label for="exampleFormControlFile1">select picturs</label>
+    				<input type="file" class="form-control-file" id="exampleFormControlFile1" name="jpg">
+  				
+
+
+				<button type="submit" class="btn btn-primary">Submit</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+

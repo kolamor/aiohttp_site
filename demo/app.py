@@ -3,11 +3,12 @@ from aiohttp import web
 import jinja2
 import aiohttp_jinja2
 import asyncpgsa
-from .routes import setup_routes
+from .routes import setup_routes, setup_static_routes
 
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
 from aiohttp_session import setup, get_session, session_middleware
 from .models.user import User
+
 
 
 
@@ -27,6 +28,7 @@ async def create_app(config:dict):
 	setup(app, EncryptedCookieStorage(secret_key))
 
 	setup_routes(app)
+	setup_static_routes(app)
 	app.on_startup.append(on_start)
 	app.on_cleanup.append(on_shutdown)
 

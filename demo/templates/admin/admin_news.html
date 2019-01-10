@@ -1,0 +1,125 @@
+fas
+{% extends "/admin/admin.html" %}
+
+
+
+{% block auth1 %}
+{% endblock %}
+
+{% block news %}
+
+
+<h3>news</h3>
+
+	<div class="row my-0 py-0">
+
+		<div class="col-1 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; "> 		Id
+			</div>
+		</div>
+
+		<div class="col-1 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; "> 	
+					title
+			</div>
+		</div>
+		<div class="col-1 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; ">
+				slug					
+			</div>
+		</div>
+		<div class="col-1 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; ">
+ 					user
+			</div>
+		</div>
+		<div class="col-1 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; ">
+ 					category
+			</div>
+		</div>
+		<div class="col-2 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; ">
+ 					text
+			</div>
+		</div>
+		<div class="col-1 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; ">
+ 					text_min
+			</div>
+		</div>
+		<div class="col-1 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; ">
+ 					description
+			</div>
+		</div>
+		<div class="col-1 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; ">
+ 					likes
+			</div>
+		</div>
+		<div class="col-1 py-0 my-0">
+			<div class="shadow-lg p-3 mb-5 bg-white rounded" style="color: red; font-size: 1.2em; ">
+ 					image
+			</div>
+		</div>
+	</div>
+	
+
+{% for new in news %}
+	<div class="row">
+		<div class="col-1 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ new['id'] }}
+			</div>
+		</div>
+
+		<div class="col-1 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				<a href="{{url ('admin_edit_news', slug = new['slug'] ) }}"> {{ new['title'] }} </a>
+			</div>
+		</div>
+		<div class="col-1 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ new['slug'] }}
+			</div>
+		</div>
+		<div class="col-1 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ user[new['user_id']] }}
+			</div>
+		</div>
+		<div class="col-1 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ category[new['category_id']] }}
+			</div>
+		</div>
+		<div class="col-2 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ new['text'] }}
+			</div>
+		</div>
+		<div class="col-1 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ new['text_min'] }}
+			</div>
+		</div>
+		<div class="col-1 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ new['description'] }}
+			</div>
+		</div>
+		<div class="col-1 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ new['likes'] }}
+			</div>
+		</div>
+		<div class="col-1 my-0 ">
+			<div class="shadow p-1 mb-5 bg-white rounded">
+ 				{{ new['image'] }}
+			</div>
+		</div>
+	</div>
+{% endfor %}
+
+{% endblock %}
