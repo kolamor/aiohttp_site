@@ -1,7 +1,5 @@
 import base64
 # import hashlib
-
-
 from sqlalchemy import select, insert, update
 from sqlalchemy.sql import text
 # from sqlalchemy import and_, or_
@@ -18,7 +16,6 @@ from cryptography.fernet import Fernet
 @template('/auth/login.html')
 async def login ( request):
 	session = await get_session(request)
-	
 	secret_key = request.app['config'].get('secret_key')
 	secret_key1 = base64.urlsafe_b64decode(request.app['config'].get('secret_key'))
 	request = request
@@ -35,14 +32,12 @@ async def login_post(request):
 	# cipher = Fernet(request.app['config'].get('secret_key'))
 	# password = cipher.encript(data['password'])
 	async with request.app['db'].acquire() as conn:
-		# query = text("SELECT * FROM user_d WHERE login = '{}';".format(user))
 		query = select([db.user_d]).where(db.user_d.c.login == user)
 		product = await conn.fetchrow(query)
 		try:
 			user_data = dict(product)
 		except TypeError:
 			user_data = {}
-	
 	if user == user_data.get('login') and password == user_data.get('password'):
 		session = await get_session(request)
 		session['user'] = user_data.get('login')
@@ -78,15 +73,13 @@ async def signup_post(request):
 		except:
 			pass
 		result = await conn.fetchrow(query)
-		
 		if result is None:
 			query = db.user_d.insert({
 				'login'    : data['username'],
 				'email'    : data['email'],
 				'password' : data['password']
 				})
-			
-			result1 = await conn.execute(query)
+			await conn.execute(query)
 			session = await get_session(request)
 			session['user'] = data['username']
 			location = request.app.router['login'].url_for()

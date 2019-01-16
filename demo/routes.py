@@ -17,6 +17,7 @@ def setup_routes(app):
 					web.post('/signup', auth.signup_post, ),
 					web.get('/logout', auth.logout, 					name='logout'),
 					web.post('/logout', auth.logout_post, 				name="logout_post"),
+					
 					web.get('/admin/users', admin.admin_users,   		name='admin_user'),
 					web.get('/admin', admin.admin, 						name='admin'),
 					web.get('/admin/users/{name}', admin.edit_user, 	name='edit_user'),
@@ -24,6 +25,7 @@ def setup_routes(app):
 					web.get('/admin/news', admin.admin_news, 			name='admin_news'),
 					web.get('/admin/news/{slug}', admin.admin_edit_news, name='admin_edit_news'),
 					web.post('/admin/news/{slug}', admin.admin_edit_news_post ),
+					
 					])
 
 

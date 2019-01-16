@@ -20,5 +20,4 @@ class User:
 		async with request.app['db'].acquire() as conn:
 			query = select([db.user_d.c.login, db.user_d.c.id ]).where(db.user_d.c.id == user_id)
 			user = await conn.fetchrow(query)
-			
 		return user

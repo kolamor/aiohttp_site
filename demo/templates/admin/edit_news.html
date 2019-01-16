@@ -1,3 +1,4 @@
+
 edit news
 {% extends "/admin/admin.html" %}
 
@@ -47,10 +48,31 @@ edit news
 
 				<button type="submit" class="btn btn-primary">Submit</button>
 			</form>
+
 		</div>
 	</div>
 </div>
 
+<div class="container">
+	<div class="row">
+		{% for image in images %}
+		<div class="col-auto">
+			
+			<div class="card" style="width: 18rem;">
+  				<img class="card-img-top" src="{{ url('static', filename=image.image) }}" alt="Card image cap">
+  				<div class="card-body">
+    				<h5 class="card-title">{{image.image}}</h5>
+    				<form method="POST">
+    					<button name="image_del" value="{{image.image}}" class="btn btn-primary">Удалить</button>
+    				</form>
+  				</div>
+  			
+			</div>
+		</div>
+		{% endfor %}
+		
+	</div>
+</div>
 {% endblock %}
 
 

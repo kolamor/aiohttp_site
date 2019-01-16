@@ -6,7 +6,7 @@ create table post (
 
 );
 
-insert into post (title, body) values ('первый пост', 'Привет');
+
 
 
 

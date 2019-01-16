@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, update
+from sqlalchemy import select, insert, update, delete
 from .. import db, routes
 import datetime
 import aiohttp
@@ -24,28 +24,22 @@ class News:
 	@staticmethod
 	async def edit_news(request, data):
 		data = dict(data)
-		 
 		async with request.app['db'].acquire() as conn:
 			query = update(
-				db.news).where(
-				db.news.c.id == int(data['id'])).values({
-				'title' : data['title'],
-				'slug'	: data['slug'],
-				'user_id'	: int(data['user']),
-				'category_id' : int(data['category']),
-				'text'	: data['text'],
-				'text_min' : data['text_min'],
-				'description' : data['description'],
-				
-			})
-			w = await conn.execute(query)
-
-	
-		
-		wer = await News.save_pic(request)
+					db.news).where(
+					db.news.c.id == int(data['id'])).values({
+					'title' 		: data['title'],
+					'slug'			: data['slug'],
+					'user_id'		: int(data['user']),
+					'category_id' 	: int(data['category']),
+					'text'			: data['text'],
+					'text_min' 		: data['text_min'],
+					'description' 	: data['description'],
+					
+				})
+			await conn.execute(query)
+		await News.save_pic(request)
 		return data
-
-
 
 	@staticmethod
 	async def save_pic(request):
@@ -57,7 +51,6 @@ class News:
 		jpg_file = data['jpg'].file
 		filename_generate = await News.generate_filename(data, filename)
 		path = await routes.path_save_pic(request)
-		# path_jpg = '{0}/{1}'.format(path, filename_generate)
 		path_jpg = os.path.join(path, filename_generate)
 		try:
 			with open(path_jpg, 'wb') as f:
@@ -82,14 +75,32 @@ class News:
 					'news_id' : int(news_id),
 					'image' : filename_generate
 				})
-				w = await conn.execute(query)
-				
+				await conn.execute(query)
 		return
 
 	@staticmethod
 	async def  generate_filename(data, filename):
 	 	filename = data['slug'] + '_' + filename
 	 	return "news_id_{0}/{1}".format(data['id'], filename)
+
+	@staticmethod
+	async def get_images(request, news_id):
+		async with request.app['db'].acquire() as conn:
+			query = select([db.news_image.c.image]).where(db.news_image.c.news_id == news_id)
+			images = await conn.fetch(query)
+		return images
+
+	@staticmethod
+	async def del_image(request, image):
+		async with request.app['db'].acquire() as conn:
+			query = db.news_image.delete().where(db.news_image.c.image == image)
+			w = await conn.execute(query)
+		path = await routes.path_save_pic(request)
+		try:
+			os.remove(path + '/' + image)
+		except FileNotFoundError:
+			pass
+		
 
 	
 
@@ -111,5 +122,5 @@ class Category:
 			cat_id_title = {cat['id'] : cat['title']}
 			cat_id_title_dict.update(cat_id_title)
 		return cat_id_title_dict
-
+	
 

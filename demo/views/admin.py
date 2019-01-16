@@ -98,35 +98,40 @@ async def admin_news(request):
 
 @template('/admin/edit_news.html')
 async def admin_edit_news(request):
+	
 	slug = request.match_info.get('slug')
 	news = await News.get_news_from_slug(request, slug)
+	images = await News.get_images(request, news['id'])
+	
 	context ={
 			'news' : news,
 			'session' : request.session,
+			'images'  : images
 			
 			}
 	return context
 
 async def admin_edit_news_post(request):
 	data = await request.post()
+	if 'image_del' in data:
+		await News.del_image(request, data['image_del'])
+		slug = request.match_info.get('slug')
+		location = request.path
+		raise aiohttp.web.HTTPFound(location=location)
 	
-	q = await News.edit_news(request, data)
+	await News.edit_news(request, data)
 	news = await News.get_news_from_slug(request, data['slug'])
+	images = await News.get_images(request, news['id'])
+	
 	context = {
 		'session' : request.session,
 		'news' : news,
+		'images' : images
 	}
 	return render_template('/admin/edit_news.html', request, context)
 
 
-
-
-
-
-
-
-
-
+	
 
 async def admin_privilege_valid(request):
 	session = await get_session(request)
