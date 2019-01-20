@@ -9,13 +9,22 @@ import os
 
 from aiohttp_session import get_session, session_middleware, setup
 
+from ..models.news import News, Category, News_, NewsImage
+
 
 
 
 
 @template('index.html')
 async def index(request):
+	
 	site_name = request.app['config'].get('site_name')
+	
+	e = await News_.create(request, id=1)
+	w = await NewsImage.create(request, id = 35)
+
+	print(w ,'--')
+	
 	
 	return { 'site_name': site_name }
 

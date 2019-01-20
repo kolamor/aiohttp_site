@@ -25,6 +25,7 @@ def setup_routes(app):
 					web.get('/admin/news', admin.admin_news, 			name='admin_news'),
 					web.get('/admin/news/{slug}', admin.admin_edit_news, name='admin_edit_news'),
 					web.post('/admin/news/{slug}', admin.admin_edit_news_post ),
+					web.get('/admin/create_news', admin.CreateNews, name='create_news'),
 					
 					])
 
