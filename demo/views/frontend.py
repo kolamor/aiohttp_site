@@ -20,12 +20,7 @@ async def index(request):
 	
 	site_name = request.app['config'].get('site_name')
 	
-	e = await News_.create(request, id=1)
-	w = await NewsImage.create(request, id = 35)
-
-	print(w ,'--')
-	
-	
+		
 	return { 'site_name': site_name }
 
 
