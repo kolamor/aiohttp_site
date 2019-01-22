@@ -13,8 +13,8 @@ def setup_routes(app):
 	app.router.add_routes([
 					web.get('/login', auth.Login, 						name='login'),
 					web.post('/login', auth.Login),
-					web.get('/signup', auth.signup, 					name='signup'),
-					web.post('/signup', auth.signup_post, ),
+					web.get('/signup', auth.Signup, 					name='signup'),
+					web.post('/signup', auth.Signup, ),
 					web.get('/logout', auth.logout, 					name='logout'),
 					web.post('/logout', auth.logout_post, 				name="logout_post"),
 					

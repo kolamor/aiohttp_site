@@ -82,11 +82,14 @@ class User:
 			await conn.execute(query)
 		return self
 
-	async def insert(self, **kwargs):
+	@classmethod
+	async def insert(cls, request, **kwargs):
+		self = cls()
+		self._db = request.app['db']
 		self.login = kwargs['login']
 		self.email = kwargs['email']
 		self.password = kwargs['password']
-		self.admin_privilege = kwargs['admin_privilege']
+		self.admin_privilege = kwargs['admin_privilege'] if 'admin_privilege' in kwargs else False
 		async with self._db.acquire() as conn:
 			query = db.user_d.insert({
 				'login'    : self.login,
@@ -96,6 +99,13 @@ class User:
 				})
 			await conn.execute(query)
 		return self
+
+	async def delete(self):
+		async with self._db.acquire() as conn:
+			query = db.user_d.delete().where(
+	        	db.user_d.c.id == self.id)
+			await conn.execute(query)
+		
 
 	def __str__(self):
 		return f'объект {self.__class__} :{str(self._dict_obj)}'

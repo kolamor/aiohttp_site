@@ -17,7 +17,7 @@ class Login(aiohttp.web.View):
    
 
 	@template('/auth/login.html')
-	async def get ( self):
+	async def get(self):
 		session = await get_session(self.request)
 		secret_key = self.request.app['config'].get('secret_key')
 		secret_key1 = base64.urlsafe_b64decode(self.request.app['config'].get('secret_key'))
@@ -44,52 +44,46 @@ class Login(aiohttp.web.View):
 			location = self.request.app.router['login'].url_for()
 			return aiohttp.web.HTTPFound(location=location)
 		else:
-			
 			location = self.request.app.router['login'].url_for()
 			return aiohttp.web.HTTPFound(location=location)
 
 
-@template('/auth/signup.html')
-async def signup(request):
-	session = await get_session(request)
-	return {'session' : session }
+class Signup(aiohttp.web.View):
 
-async def signup_post(request):
-	data = await request.post()
-	if data['password'] != data['password_control']:
-		location = request.app.router['signup'].url_for()
-		context = {"valid" : "not valid"} 
-		return render_template('signup.html', request, context)
+	@template('/auth/signup.html')
+	async def get(self):
+		context = {'request' : self.request}
+		return  context
 
-	# key = (request.app['config'].get('secret_key').encode('utf8'))
-	# cipher = Fernet(key)
-	# password = cipher.encrypt(bytes(data['password'].encode('utf8')))
-	
-	async with request.app['db'].acquire() as conn:
+	async def post(self):
+		data = await self.request.post()
+		if data['password'] != data['password_control']:
+			location = request.app.router['signup'].url_for()
+			context = {"valid" : "not valid"} 
+			return render_template('/auth/signup.html', request, context)
+
+		# key = (request.app['config'].get('secret_key').encode('utf8'))
+		# cipher = Fernet(key)
+		# password = cipher.encrypt(bytes(data['password'].encode('utf8')))
 		try:
-			query = select([db.user_d]).\
-				where ((db.user_d.c.login == data['username'])
-					| (db.user_d.c.email == data['email'] ))	
-		except:
-			pass
-		result = await conn.fetchrow(query)
-		if result is None:
-			query = db.user_d.insert({
-				'login'    : data['username'],
-				'email'    : data['email'],
-				'password' : data['password']
-				})
-			await conn.execute(query)
-			session = await get_session(request)
-			session['user'] = data['username']
-			location = request.app.router['login'].url_for()
-			return aiohttp.web.HTTPFound(location=location)
-
-		if data['username'] in result['login']:
+			user = await User.create(self.request, login=data['username'])
+		except ValueError:
+			user = None
+		try:
+			email = await User.create(self.request, email=data['email'])
+		except ValueError:
+			email = None
+		if user is not None:
 			context = {"valid" : "Есть такой пользователь"}
-		elif data['email'] in result['email']:
+		elif email is not None:
 			context = {"valid" : "Есть такой email"}
-		return render_template('signup.html', request, context)
+		elif user is None and email is None:
+			user = await User.insert(self.request, **data, login=data['username'])
+			self.request.session['user'] = data['username']
+			context ={'valid' : 'Успешно'}
+		con = {'request' : self.request}
+		context.update(con)
+		return render_template('/auth/signup.html', self.request, context)
 
 
 

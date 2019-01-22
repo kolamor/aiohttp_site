@@ -216,7 +216,7 @@ class News(ObjMixin):
 		self.moderation = kwargs['moderation'] if 'moderation' in kwargs['moderation'] else False
 		self.image = kwargs['image'] if 'image' in kwargs['image'] else None
 		async with self._db.acquire() as conn:
-			query = db.category.insert({
+			query = db.news.insert({
 						'title' 		: self.title,
 						'slug'			: self.slug ,
 						'user_id'		: int(self.user_id),
@@ -230,6 +230,12 @@ class News(ObjMixin):
 					})
 			await conn.execute(query)
 		return self
+
+	async def delete(self):
+		async with self._db.acquire() as conn:
+			query = db.news.delete().where(
+	        	db.news.c.id == self.id)
+			await conn.execute(query)
 
 	@staticmethod
 	async def get_all_news(request):
@@ -287,6 +293,12 @@ class Category(ObjMixin):
 				})
 			await conn.execute(query)
 		return self
+
+	async def delete(self):
+		async with self._db.acquire() as conn:
+			query = db.category.delete().where(
+	        	db.category.c.id == self.id)
+			await conn.execute(query)
 				
 
 	@classmethod
