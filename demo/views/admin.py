@@ -8,7 +8,7 @@ from aiohttp_jinja2 import template,  render_template
 from .. import db 
 import os
 from ..models.user import User
-from ..models.news import News, Category, News_
+from ..models.news import News, Category
 
 from aiohttp_session import get_session, session_middleware, setup
 
@@ -80,12 +80,18 @@ async def edit_user_post(request):
 	}
 	return render_template('/admin/edit_user.html', request, context)
 
+# class AdminNews(aiohttp.web.View):
+#     async def get(self):
+#     	news = await News.get_all_news()
+#     	return await get_resp(self.request)
+
+   
 
 @template('/admin/admin_news.html')
 async def admin_news(request):
 	
 	news = await News_.get_all_news(request)
-	
+
 	category = await Category.get_all_category(request)
 	user_dict = await User.get_user_from_id(news, request)
 
@@ -97,7 +103,7 @@ async def admin_news(request):
 			'request' : request,
 		}
 
-	return context
+# 	return context
 
 @template('/admin/edit_news.html')
 async def admin_edit_news(request):

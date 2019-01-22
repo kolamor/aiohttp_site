@@ -6,7 +6,7 @@ import os
 import asyncpgsa
 
 
-class News:
+class _News:
 
 	@staticmethod
 	async def get_all_news(request):
@@ -102,7 +102,7 @@ class News:
 			pass
 
 class ObjMixin():
-
+	''' Superclass'''
 	@classmethod
 	async def create(cls, request, **kwargs):
 		self = cls()
@@ -139,7 +139,7 @@ class ObjMixin():
 
 
 
-class News_(ObjMixin):
+class News(ObjMixin):
 
 	@classmethod
 	async def create(cls, request, **kwargs):
@@ -205,6 +205,32 @@ class News_(ObjMixin):
 			await conn.execute(query)
 		return self
 
+	async def insert(self, **kwargs):
+		self.title = kwargs['title']
+		self.slug = kwargs['slug']
+		self.user_id = kwargs['user_id']
+		self.category_id = kwargs['category_id']
+		self.text = kwargs['text']
+		self.text_min = kwargs['text_min']
+		self.description = kwargs['description']
+		self.moderation = kwargs['moderation'] if 'moderation' in kwargs['moderation'] else False
+		self.image = kwargs['image'] if 'image' in kwargs['image'] else None
+		async with self._db.acquire() as conn:
+			query = db.category.insert({
+						'title' 		: self.title,
+						'slug'			: self.slug ,
+						'user_id'		: int(self.user_id),
+						'category_id' 	: int(self.category_id),
+						'text'			: self.text ,
+						'text_min' 		: self.text_min,
+						'description' 	: self.description,
+						'likes' 		: int(self.likes) ,
+						'image'			: self.image,
+						'moderation'	: bool(self.moderation),
+					})
+			await conn.execute(query)
+		return self
+
 	@staticmethod
 	async def get_all_news(request):
 		async with request.app['db'].acquire() as conn:
@@ -212,26 +238,6 @@ class News_(ObjMixin):
 			news = await conn.fetch(query)
 		return news
 
-	
-
-# class Category:
-
-# 	@staticmethod
-# 	async def get_all_category(request):
-# 		async with request.app['db'].acquire() as conn:
-# 			query = select([db.category])
-# 			category = await conn.fetch(query)
-# 		return category
-
-
-# 	@staticmethod
-# 	async def category_dict_id_title(request):
-# 		cat_id_title_dict = {}
-# 		category = await Category.get_all_category(request)
-# 		for cat in category:
-# 			cat_id_title = {cat['id'] : cat['title']}
-# 			cat_id_title_dict.update(cat_id_title)
-# 		return cat_id_title_dict
 
 class Category(ObjMixin):
 
@@ -270,6 +276,18 @@ class Category(ObjMixin):
 					})
 			await conn.execute(query)
 		return self
+
+	async def insert(self, title, slug):
+		self.title = title
+		self.slug = slug
+		async with self._db.acquire() as conn:
+			query = db.category.insert({
+				'title'    : self.title,
+				'slug'    : self.slug,
+				})
+			await conn.execute(query)
+		return self
+				
 
 	@classmethod
 	async def get_all_category(cls, request):

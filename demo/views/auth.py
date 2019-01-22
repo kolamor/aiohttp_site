@@ -10,43 +10,43 @@ import os
 from aiohttp_session import get_session, session_middleware, setup
 from cryptography.fernet import Fernet
 
+from ..models.user import User
 
 
+class Login(aiohttp.web.View):
+   
 
-@template('/auth/login.html')
-async def login ( request):
-	session = await get_session(request)
-	secret_key = request.app['config'].get('secret_key')
-	secret_key1 = base64.urlsafe_b64decode(request.app['config'].get('secret_key'))
-	request = request
-	return {'session' : session,
-				'secret_key' : secret_key1,
-				'request' : request,
-				}
+	@template('/auth/login.html')
+	async def get ( self):
+		session = await get_session(self.request)
+		secret_key = self.request.app['config'].get('secret_key')
+		secret_key1 = base64.urlsafe_b64decode(self.request.app['config'].get('secret_key'))
+		
+		return {'session' : session,
+					'secret_key' : secret_key1,
+					'request' : self.request,
+					}
 
-async def login_post(request):
-	data = await request.post()
-	user = data['username']
-	password = data['password']
-	# password = hashlib.sha256(data['password'].encode('utf8')).hexdigest()
-	# cipher = Fernet(request.app['config'].get('secret_key'))
-	# password = cipher.encript(data['password'])
-	async with request.app['db'].acquire() as conn:
-		query = select([db.user_d]).where(db.user_d.c.login == user)
-		product = await conn.fetchrow(query)
+	async def post(self):
+		data = await self.request.post()
+		
+		# password = hashlib.sha256(data['password'].encode('utf8')).hexdigest()
+		# cipher = Fernet(request.app['config'].get('secret_key'))
+		# password = cipher.encript(data['password'])
 		try:
-			user_data = dict(product)
-		except TypeError:
-			user_data = {}
-	if user == user_data.get('login') and password == user_data.get('password'):
-		session = await get_session(request)
-		session['user'] = user_data.get('login')
-		location = request.app.router['login'].url_for()
-		return aiohttp.web.HTTPFound(location=location)
-	else:
-		print('none')
-		location = request.app.router['login'].url_for()
-		return aiohttp.web.HTTPFound(location=location)
+			user = await User.create(self.request, login = data['username'])
+		except ValueError:
+			location = self.request.app.router['login'].url_for()
+			return aiohttp.web.HTTPFound(location=location)
+		if user.password == data['password']:
+			session = await get_session(self.request)
+			session['user'] = user.login
+			location = self.request.app.router['login'].url_for()
+			return aiohttp.web.HTTPFound(location=location)
+		else:
+			
+			location = self.request.app.router['login'].url_for()
+			return aiohttp.web.HTTPFound(location=location)
 
 
 @template('/auth/signup.html')

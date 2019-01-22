@@ -11,8 +11,8 @@ def setup_routes(app):
 	#app.router.add_route('POST', '/login', frontend.login_post)
 
 	app.router.add_routes([
-					web.get('/login', auth.login, 						name='login'),
-					web.post('/login', auth.login_post),
+					web.get('/login', auth.Login, 						name='login'),
+					web.post('/login', auth.Login),
 					web.get('/signup', auth.signup, 					name='signup'),
 					web.post('/signup', auth.signup_post, ),
 					web.get('/logout', auth.logout, 					name='logout'),

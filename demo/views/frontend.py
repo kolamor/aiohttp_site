@@ -9,7 +9,7 @@ import os
 
 from aiohttp_session import get_session, session_middleware, setup
 
-from ..models.news import News, Category, News_, NewsImage
+from ..models.news import News, Category, NewsImage
 
 
 
