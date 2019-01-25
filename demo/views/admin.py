@@ -15,95 +15,87 @@ from aiohttp_session import get_session, session_middleware, setup
 
 
 
+class Admin(aiohttp.web.View):
 
+	@template('/admin/admin.html')
+	async def get(self):
 
-@template('/admin/admin.html')
-async def admin(request):
-
-	session = await get_session(request)
-	await admin_privilege_valid(request)
-	context ={
-			'session' : session,
-			'request' : request,
-
-	}
-	return context
-
-
-@template('/admin/users.html')
-async def admin_users(request):
-	await admin_privilege_valid(request)
-	session = await get_session(request)
-	async with request.app['db'].acquire() as conn:
-		query = select([db.user_d.c.login, db.user_d.c.password, db.user_d.c.email,
-						db.user_d.c.admin_privilege, db.user_d.c.id ] )
-		users = await conn.fetch(query)
-				
-	context = {
-				'users' : users,
-				'request' : request,
-				'session' : session,
+		await admin_privilege_valid(self.request)
+		context ={
+				'session' : self.request.session,
+				'request' : self.request,
 		}
-	return context
+		return context
 
 
-@template('/admin/edit_user.html')
-async def edit_user(request):
-	await admin_privilege_valid(request)
-	name = request.match_info.get('name')
-	async with request.app['db'].acquire() as conn:
-		query = select([ db.user_d ] ).where(db.user_d.c.login == name)
-		user = await conn.fetchrow(query)
-		
+class AdminUsers(aiohttp.web.View):
+
+	@template('/admin/users.html')
+	async def get(self):
+		await admin_privilege_valid(self.request)
+		users = await User.get_all(self.request)
+		context = {
+					'users' : users,
+					'request' : self.request,
+					'session' : self.request.session,
+			}
+		return context
+
+
+class AdminEditUsers(aiohttp.web.View):
+
+	@template('/admin/edit_user.html')
+	async def get(self):
+		await admin_privilege_valid(self.request)
+		name = self.request.match_info.get('name')
+		user = await User.create(self.request, login=name )
 		context = {'name' : name,
-			'request' : request,
+			'request' : self.request,
+			'user'	: user,
+			'session' : self.request.session,
+		 }
+		return context
+
+	async def post(self):
+		name = self.request.match_info.get('name')
+		user = await User.create(self.request, login=name)
+		data = await self.request.post()
+
+		if 'delete' in data :
+			await user.delete()
+			location = self.request.app.router['admin_user'].url_for()
+			raise aiohttp.web.HTTPFound(location=location)
+
+		if 'admin_privilege' not in data:
+			user = await user.update(**data, admin_privilege=False)
+		user = await user.update(**data)
+		context = {
+			'name' : user.login,
+			'session' : self.request.session,
 			'user' : user,
-			
-			'session' : request.session,
-	 }
-	return context
-
-async def edit_user_post(request):
-	name = request.match_info.get('name')
-	user_id = await edit_user_db(request, name)
-
-	async with request.app['db'].acquire() as conn:
-		query = select([ db.user_d ] ).where(db.user_d.c.id == user_id)
-		user = await conn.fetchrow(query)
-		
-	context = {
-		'name' : user['login'],
-		'session' : request.session,
-		'user' : user,
-		
-		'request' : request, 
-	}
-	return render_template('/admin/edit_user.html', request, context)
-
-# class AdminNews(aiohttp.web.View):
-#     async def get(self):
-#     	news = await News.get_all_news()
-#     	return await get_resp(self.request)
-
-   
-
-@template('/admin/admin_news.html')
-async def admin_news(request):
-	
-	news = await News_.get_all_news(request)
-
-	category = await Category.get_all_category(request)
-	user_dict = await User.get_user_from_id(news, request)
-
-	context ={
-			'news' : news,
-			'session' : request.session,
-			'user' : user_dict,
-			'category' : category,
-			'request' : request,
+			'request' : self.request, 
 		}
+		return render_template('/admin/edit_user.html', self.request, context)
 
-# 	return context
+class AdminNews(aiohttp.web.View):
+
+	@template('/admin/admin_news.html')
+	async def get(self):
+		news = await News.get_all(self.request)
+		user = await User.get_all(self.request, 'id', 'login')
+		
+		""""""
+		category = await Category.get_all(self.request)
+
+		
+		context = {
+		'category': category,
+		'user': user,
+		'news': news,
+		'request' : self.request,
+		'session' : self.request.session,
+		}
+		return context
 
 @template('/admin/edit_news.html')
 async def admin_edit_news(request):
@@ -161,28 +153,28 @@ async def admin_privilege_valid(request):
 
 
 
-async def edit_user_db(request, name):
-	data = await request.post()
-	data = dict(data)
-	async with request.app['db'].acquire() as conn:
-		query = select([db.user_d]).where(db.user_d.c.id == int(data['id']))
-		user = await conn.fetchrow(query)
-		try:
-			val_admin_privilege = data.pop('admin_privilege')
-			query = update(db.user_d).where(db.user_d.c.id == user['id']).values({
-											'admin_privilege' : bool(val_admin_privilege)})
-		except KeyError as e:
-			query = update(db.user_d).where(db.user_d.c.id == user['id']).values({
-											'admin_privilege' : False })
-		await conn.execute(query)		
+# async def edit_user_db(request, name):
+# 	data = await request.post()
+# 	data = dict(data)
+# 	async with request.app['db'].acquire() as conn:
+# 		query = select([db.user_d]).where(db.user_d.c.id == int(data['id']))
+# 		user = await conn.fetchrow(query)
+# 		try:
+# 			val_admin_privilege = data.pop('admin_privilege')
+# 			query = update(db.user_d).where(db.user_d.c.id == user['id']).values({
+# 											'admin_privilege' : bool(val_admin_privilege)})
+# 		except KeyError as e:
+# 			query = update(db.user_d).where(db.user_d.c.id == user['id']).values({
+# 											'admin_privilege' : False })
+# 		await conn.execute(query)		
 
-		if '' not in data.values():
-			query = update(db.user_d).where(db.user_d.c.id == user['id']).values({
-					'login'    : data['login'],
-					'email'    : data['email'],
-					'password' : data['password']})
-			await conn.execute(query)
-	return user['id']
+# 		if '' not in data.values():
+# 			query = update(db.user_d).where(db.user_d.c.id == user['id']).values({
+# 					'login'    : data['login'],
+# 					'email'    : data['email'],
+# 					'password' : data['password']})
+# 			await conn.execute(query)
+# 	return user['id']
 
 
 

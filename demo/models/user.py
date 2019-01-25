@@ -1,26 +1,26 @@
 import asyncpgsa
-from sqlalchemy import select, insert, update
+from sqlalchemy import select, insert, update, text
 from .. import db 
 
 class User:
 
-	@staticmethod
-	async def get_user_from_id(news, request):
-		user_dict = {}
-		for new in news:
-			user = await User.user_name(new['id'], request)
-			user = {user['id'] : user['login']}
-			user_dict.update(user)
-		return user_dict	
+	# @staticmethod
+	# async def get_user_from_id(news, request):
+	# 	user_dict = {}
+	# 	for new in news:
+	# 		user = await User.user_name(new['id'], request)
+	# 		user = {user['id'] : user['login']}
+	# 		user_dict.update(user)
+	# 	return user_dict	
 
 
-	@staticmethod
-	async def user_name(user_id, request):
+	# @staticmethod
+	# async def user_name(user_id, request):
 
-		async with request.app['db'].acquire() as conn:
-			query = select([db.user_d.c.login, db.user_d.c.id ]).where(db.user_d.c.id == user_id)
-			user = await conn.fetchrow(query)
-		return user
+	# 	async with request.app['db'].acquire() as conn:
+	# 		query = select([db.user_d.c.login, db.user_d.c.id ]).where(db.user_d.c.id == user_id)
+	# 		user = await conn.fetchrow(query)
+	# 	return user
 
 	@classmethod
 	async def create(cls, request, **kwargs):
@@ -72,16 +72,17 @@ class User:
 		self.password = kwargs['password'] if 'password' in kwargs else self.password
 		self.admin_privilege = kwargs['admin_privilege'] if 'admin_privilege' in kwargs else self.admin_privilege
 		async with self._db.acquire() as conn:
-			update(db.user_d).where(
+			query = update(db.user_d).where(
 					db.user_d.c.id == int(self.id)).values({
 				'login'    : self.login,
 				'email'    : self.email,
 				'password'	: self.password,
-				'admin_privilege' : self.admin_privilege,
+				'admin_privilege' : bool(self.admin_privilege),
 				})
 			await conn.execute(query)
 		return self
 
+	
 	@classmethod
 	async def insert(cls, request, **kwargs):
 		self = cls()
@@ -104,7 +105,24 @@ class User:
 		async with self._db.acquire() as conn:
 			query = db.user_d.delete().where(
 	        	db.user_d.c.id == self.id)
+			print (query)
 			await conn.execute(query)
+
+	@classmethod
+	async def get_all(cls, request, *fields):
+
+		async with request.app['db'].acquire() as conn:
+			if len(fields) == 1:
+				query = text(f"Select {fields[0]} from user_d;")
+			elif len(fields) == 2:
+				query = text(f"Select {fields[0]} , {fields[1]} from user_d;")
+			elif len(fields) == 3:
+				query = text(f"Select {fields[0]} , {fields[1]}, {fields[2]} from user_d;")
+			else:
+				query = select([db.user_d] )
+			print('----',query)
+			users = await conn.fetch(query)
+		return users
 		
 
 	def __str__(self):
