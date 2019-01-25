@@ -23,8 +23,8 @@ def setup_routes(app):
 					web.get('/admin/users/{name}', admin.AdminEditUsers, 	name='admin_edit_user'),
 					web.post('/admin/users/{name}', admin.AdminEditUsers, ),
 					web.get('/admin/news', admin.AdminNews, 			name='admin_news'),
-					web.get('/admin/news/{slug}', admin.admin_edit_news, name='admin_edit_news'),
-					web.post('/admin/news/{slug}', admin.admin_edit_news_post ),
+					web.get('/admin/news/{slug}', admin.AdminEditNews, name='admin_edit_news'),
+					web.post('/admin/news/{slug}', admin.AdminEditNews ),
 					web.get('/admin/create_news', admin.CreateNews, name='create_news'),
 					
 					])

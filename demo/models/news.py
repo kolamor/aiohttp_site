@@ -1,4 +1,4 @@
-from sqlalchemy import select, insert, update, delete
+from sqlalchemy import select, insert, update, delete, text
 from .. import db, routes
 import datetime
 import aiohttp
@@ -6,100 +6,6 @@ import os
 import asyncpgsa
 
 
-# class _News:
-
-# 	@staticmethod
-# 	async def get_all_news(request):
-# 		async with request.app['db'].acquire() as conn:
-# 			query = select([db.news])
-# 			news = await conn.fetch(query)
-# 		return news
-
-# 	@staticmethod
-# 	async def get_news_from_slug(request, slug):
-# 		async with request.app['db'].acquire() as conn:
-# 			query = select([db.news]).where(db.news.c.slug == slug)
-# 			news = await conn.fetchrow(query)
-# 		return news
-
-# 	@staticmethod
-# 	async def edit_news(request, data):
-# 		async with request.app['db'].acquire() as conn:
-# 			query = update(
-# 					db.news).where(
-# 					db.news.c.id == int(data['id'])).values({
-# 					'title' 		: data['title'],
-# 					'slug'			: data['slug'],
-# 					'user_id'		: int(data['user']),
-# 					'category_id' 	: int(data['category']),
-# 					'text'			: data['text'],
-# 					'text_min' 		: data['text_min'],
-# 					'description' 	: data['description'],
-					
-# 				})
-# 			await conn.execute(query)
-# 		await News.save_pic(request)
-# 		return data
-
-# 	@staticmethod
-# 	async def save_pic(request):
-# 		data = await request.post()
-# 		if data['jpg'] == b'':
-# 			return aiohttp.web.HTTPFound('/admin/news')
-# 		jpg = data['jpg']
-# 		filename = jpg.filename
-# 		jpg_file = data['jpg'].file
-# 		filename_generate = await News.generate_filename(data, filename)
-# 		path = await routes.path_save_pic(request)
-# 		path_jpg = os.path.join(path, filename_generate)
-# 		try:
-# 			with open(path_jpg, 'wb') as f:
-# 				f.write(jpg_file.read())
-# 		except FileNotFoundError:
-# 			path_news = filename_generate.split('/')
-# 			path_news = os.path.join(path, path_news[0])
-# 			os.makedirs(path_news)
-# 			with open(path_jpg, 'wb') as f:
-# 				f.write(jpg_file.read())
-# 		await News.save_pic_db(request, filename_generate, data['id'])
-# 		return
-
-# 	@staticmethod
-# 	async def save_pic_db(request, filename_generate, news_id):
-# 		async with request.app['db'].acquire() as conn:
-# 			query = select([db.news_image]).where(
-# 				(db.news_image.c.news_id == int(news_id)) & (db.news_image.c.image == filename_generate))
-# 			image = await conn.fetchrow(query)
-# 			if image == None:
-# 				query = db.news_image.insert({
-# 					'news_id' : int(news_id),
-# 					'image' : filename_generate
-# 				})
-# 				await conn.execute(query)
-# 		return
-
-# 	@staticmethod
-# 	async def  generate_filename(data, filename):
-# 	 	filename = data['slug'] + '_' + filename
-# 	 	return "news_id_{0}/{1}".format(data['id'], filename)
-
-# 	@staticmethod
-# 	async def get_images(request, news_id):
-# 		async with request.app['db'].acquire() as conn:
-# 			query = select([db.news_image.c.image]).where(db.news_image.c.news_id == news_id)
-# 			images = await conn.fetch(query)
-# 		return images
-
-# 	@staticmethod
-# 	async def del_image(request, image):
-# 		async with request.app['db'].acquire() as conn:
-# 			query = db.news_image.delete().where(db.news_image.c.image == image)
-# 			await conn.execute(query)
-# 		path = await routes.path_save_pic(request)
-# 		try:
-# 			os.remove(path + '/' + image)
-# 		except FileNotFoundError:
-			# pass
 
 class ObjMixin():
 	''' Superclass'''
@@ -305,11 +211,19 @@ class Category(ObjMixin):
 				
 
 	@classmethod
-	async def get_all(cls, request):
+	async def get_all(cls, request, *fields):
+
 		async with request.app['db'].acquire() as conn:
-			query = select([db.category])
-			category = await conn.fetch(query)
-		return category
+			if len(fields) == 1:
+				query = text(f"Select {fields[0]} from category;")
+			elif len(fields) == 2:
+				query = text(f"Select {fields[0]} , {fields[1]} from category;")
+			elif len(fields) == 3:
+				query = text(f"Select {fields[0]} , {fields[1]}, {fields[2]} from category;")
+			else:
+				query = select([db.category] )
+			users = await conn.fetch(query)
+		return users
 
 
 class NewsImage:
@@ -317,35 +231,93 @@ class NewsImage:
 	@classmethod
 	async def create(cls, request, **kwargs):
 		self = cls()
+		self._db = request.app['db']
 		if 'id' in kwargs:
 			self.id = kwargs['id']
-			self._dict_obj = await self.get_from_id(request)
+			self._dict_obj = await self.get_from_id(self)
 			if self._dict_obj is None:
 				raise ValueError('не найдено')
 			self.news_id = self._dict_obj['news_id']
 			self.image = self._dict_obj['image']
 		elif 'news_id' in kwargs:
 			self.news_id = kwargs['news_id'] 
-			self.images = await self.get_images(request)
+			self.images = await self.get_images()
 		else:
 			raise AttributeError('нужен id или news_id')
 		
 		return self
 
-	async def get_from_id(self, request):
-		async with request.app['db'].acquire() as conn:
+	async def get_from_id(self):
+		async with self._db.acquire() as conn:
 			query = select([db.news_image]).where(db.news_image.c.id == self.id)
 			_dict_obj = await conn.fetchrow(query)
 			return _dict_obj
 
-	async def get_images(self, request):
-		async with request.app['db'].acquire() as conn:
+	async def get_images(self):
+		async with self._db.acquire() as conn:
 			query = select([db.news_image]).where(db.news_image.c.news_id == self.news_id)
 			images = await conn.fetch(query)
 		return images
 
+	
+	async def insert(self, request, data):
+		# data = await self.request.post()
+		if data['jpg'] == b'':
+			return
+		jpg = data['jpg']
+		filename = jpg.filename
+		jpg_file = data['jpg'].file
+		filename_generate = await self.generate_filename(data, filename)
+		path = await routes.path_save_pic(request)
+		path_jpg = os.path.join(path, filename_generate)
+		try:
+			with open(path_jpg, 'wb') as f:
+				f.write(jpg_file.read())
+		except FileNotFoundError:
+			path_news = filename_generate.split('/')
+			path_news = os.path.join(path, path_news[0])
+			os.makedirs(path_news)
+			with open(path_jpg, 'wb') as f:
+				f.write(jpg_file.read())
+		await self.save_pic_db(filename_generate)
+		self.images = await self.get_images()
+		return self
+
+
+	async def save_pic_db(self, filename_generate):
+		async with self._db.acquire() as conn:
+			query = select([db.news_image]).where(
+				(db.news_image.c.news_id == int(self.news_id)) & (db.news_image.c.image == filename_generate))
+			image = await conn.fetchrow(query)
+			if image == None:
+				query = db.news_image.insert({
+					'news_id' : int(self.news_id),
+					'image' : filename_generate
+				})
+				await conn.execute(query)
+		return
+
+	
+	
+	async def delete(self, request, image):
+		async with self._db.acquire() as conn:
+			query = db.news_image.delete().where(db.news_image.c.image == image)
+			await conn.execute(query)
+		path = await routes.path_save_pic(request)
+		try:
+			os.remove(path + '/' + image)
+		except FileNotFoundError:
+			pass
+
+	@staticmethod
+	async def  generate_filename(data, filename):
+	 	filename = data['slug'] + '_' + filename
+	 	return "news_id_{0}/{1}".format(data['id'], filename)
+
+
 	def __str__(self):
-		return f'объект {self.__class__} :{str(self._dict_obj)}'
+		return f'объект {self.__class__} :{str(self.images)}'
+
 
 
 

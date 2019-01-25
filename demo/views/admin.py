@@ -8,7 +8,7 @@ from aiohttp_jinja2 import template,  render_template
 from .. import db 
 import os
 from ..models.user import User
-from ..models.news import News, Category
+from ..models.news import News, Category, NewsImage
 
 from aiohttp_session import get_session, session_middleware, setup
 
@@ -77,59 +77,66 @@ class AdminEditUsers(aiohttp.web.View):
 		}
 		return render_template('/admin/edit_user.html', self.request, context)
 
+
 class AdminNews(aiohttp.web.View):
 
 	@template('/admin/admin_news.html')
 	async def get(self):
 		news = await News.get_all(self.request)
-		user = await User.get_all(self.request, 'id', 'login')
-		
-		""""""
-		category = await Category.get_all(self.request)
-
-		
+		users_data = await User.get_all(self.request, 'id', 'login')
+		category_data = await Category.get_all(self.request, 'id', 'title')
+		users = {}
+		category ={}
+		for user in users_data:
+			users.update({user['id']: user['login']})
+		for cat in category_data:
+			category.update({cat['id']: cat['title']})		
 		context = {
 		'category': category,
-		'user': user,
+		'user': users,
 		'news': news,
 		'request' : self.request,
 		'session' : self.request.session,
 		}
 		return context
 
-@template('/admin/edit_news.html')
-async def admin_edit_news(request):
-	
-	slug = request.match_info.get('slug')
-	news = await News.get_news_from_slug(request, slug)
-	images = await News.get_images(request, news['id'])
-	
-	context ={
-			'news' : news,
-			'session' : request.session,
-			'images'  : images
-			
-			}
-	return context
 
-async def admin_edit_news_post(request):
-	data = await request.post()
-	if 'image_del' in data:
-		await News.del_image(request, data['image_del'])
-		slug = request.match_info.get('slug')
-		location = request.path
-		raise aiohttp.web.HTTPFound(location=location)
-	
-	await News.edit_news(request, data)
-	news = await News.get_news_from_slug(request, data['slug'])
-	images = await News.get_images(request, news['id'])
-	
-	context = {
-		'session' : request.session,
-		'news' : news,
-		'images' : images
-	}
-	return render_template('/admin/edit_news.html', request, context)
+class AdminEditNews(aiohttp.web.View):
+
+	@template('/admin/edit_news.html')
+	async def get(self):
+		
+		slug = self.request.match_info.get('slug')
+		news = await News.create(self.request, slug=slug)
+		images = await NewsImage.create(self.request, news_id=news.id)
+		print(images)
+
+		context ={
+				'news' : news,
+				'session' : self.request.session,
+				'images'  : images.images
+				
+				}
+		return context
+
+	async def post(self):
+		data = await self.request.post()
+		slug = self.request.match_info.get('slug')
+		news = await News.create(self.request, slug=slug)
+		images = await NewsImage.create(self.request, news_id=news.id)
+		if 'image_del' in data:
+			await images.delete(self.request, data['image_del'])
+			location = self.request.path
+			raise aiohttp.web.HTTPFound(location=location)
+
+		news = await news.update(**data)
+		await images.insert(self.request, data)
+		context = {
+			'session' : self.request.session,
+			'news' : news,
+			'images' : images.images
+		}
+		return render_template('/admin/edit_news.html', self.request, context)
 
 
 	

@@ -56,7 +56,7 @@ class User:
 
 	async def get_from_login(self):
 		async with self._db.acquire() as conn:
-			query = select([db.user_d]).where(db.user_d.c.login== self.login)
+			query = select([db.user_d]).where(db.user_d.c.login == self.login)
 			_dict_obj = await conn.fetchrow(query)
 		return _dict_obj
 
@@ -105,7 +105,6 @@ class User:
 		async with self._db.acquire() as conn:
 			query = db.user_d.delete().where(
 	        	db.user_d.c.id == self.id)
-			print (query)
 			await conn.execute(query)
 
 	@classmethod
@@ -120,7 +119,6 @@ class User:
 				query = text(f"Select {fields[0]} , {fields[1]}, {fields[2]} from user_d;")
 			else:
 				query = select([db.user_d] )
-			print('----',query)
 			users = await conn.fetch(query)
 		return users
 		
