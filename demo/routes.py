@@ -27,6 +27,7 @@ def setup_routes(app):
 					web.post('/admin/news/{slug}', admin.AdminEditNews ),
 					web.get('/admin/create_news', admin.CreateNews, name='create_news'),
 					
+					web.get('/websocket/ws', frontend.Chat, name='chat'),
 					])
 
 
