@@ -114,7 +114,10 @@ class News(ObjMixin):
 			await conn.execute(query)
 		return self
 
-	async def insert(self, **kwargs):
+	@classmethod
+	async def insert(cls, request, **kwargs):
+		self = cls()
+		self._db = request.app['db']
 		self.title = kwargs['title']
 		self.slug = kwargs['slug']
 		self.user_id = kwargs['user_id']
@@ -122,8 +125,8 @@ class News(ObjMixin):
 		self.text = kwargs['text']
 		self.text_min = kwargs['text_min']
 		self.description = kwargs['description']
-		self.moderation = kwargs['moderation'] if 'moderation' in kwargs['moderation'] else False
-		self.image = kwargs['image'] if 'image' in kwargs['image'] else None
+		self.moderation = kwargs['moderation'] if 'moderation' in kwargs else False
+		self.image = kwargs['image'] if 'image' in kwargs else None
 		async with self._db.acquire() as conn:
 			query = db.news.insert({
 						'title' 		: self.title,
@@ -133,11 +136,12 @@ class News(ObjMixin):
 						'text'			: self.text ,
 						'text_min' 		: self.text_min,
 						'description' 	: self.description,
-						'likes' 		: int(self.likes) ,
+						# 'likes' 		: int(self.likes) ,
 						'image'			: self.image,
 						'moderation'	: bool(self.moderation),
 					})
 			await conn.execute(query)
+		self = await News.create(request, slug = self.slug)
 		return self
 
 	async def delete(self):

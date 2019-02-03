@@ -1,0 +1,44 @@
+create news
+{% extends "/admin/admin.html" %}
+
+{% block auth1 %}
+{% endblock %}
+
+{% block news %}
+<div class="container">
+	<div class="row">
+		<div class="col-8">
+			<form method="POST" accept-charset="utf-8" enctype="multipart/form-data">
+				
+				<label for="">Title</label>
+					<input class="form-control" type="text" placeholder="" name="title" value="" required>
+				<label for="">slug</label>
+					<input class="form-control" type="text" placeholder="" name="slug" value="" required>
+				
+				<label for="">category_id</label>
+					<input class="form-control" type="text" placeholder="" name="category_id" value="" required >
+
+
+				
+    			<label for="" charset="utf-8">text</label>
+    				<textarea class="form-control"  type="text"  placeholder="" name="text"  rows="4"></textarea>
+    			<label for="" charset="utf-8">text_min</label>
+    				<textarea class="form-control"  type="text"  placeholder="" name="text_min"  rows="3"></textarea>
+    			<label for="" charset="utf-8">description</label>
+    				<textarea class="form-control"  type="text"  placeholder="" name="description"  rows="2"></textarea>
+
+
+
+
+				<label for="exampleFormControlFile1">select picturs</label>
+    				<input type="file" class="form-control-file" id="exampleFormControlFile1" name="jpg">
+  				
+
+
+				<button type="submit" class="btn btn-primary">Submit</button>
+			</form>
+
+		</div>
+	</div>
+</div>
+{% endblock %}

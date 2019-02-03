@@ -139,6 +139,31 @@ class AdminEditNews(aiohttp.web.View):
 		return render_template('/admin/edit_news.html', self.request, context)
 
 
+class AdminCreateNews(aiohttp.web.View):
+	
+	@template('/admin/admin_create_news.html')
+	async def get(self):
+		context = {
+
+		'session' : self.request.session,
+		}
+
+		return context
+
+	async def post(self):
+		data = await self.request.post()
+		print(data)
+		user = self.request.session['user']
+		user = await User.create(self.request, login = user)
+		print(user.id)
+		nw = await News.insert(self.request, **data, user_id=user.id)
+		print(nw)
+
+		location = self.request.app.router['admin'].url_for()
+		raise aiohttp.web.HTTPFound(location=location)
+		
+
+
 	
 
 async def admin_privilege_valid(request):
@@ -159,16 +184,5 @@ async def admin_privilege_valid(request):
 		return user
 
 
-class CreateNews(aiohttp.web.View):
-	
-	@template('/admin/create_news.html')
-	async def get(self):
 
-		session = await get_session(self)
-		print('--', session)
-		context = {
-			'session' : session,
-			'news'	: news,
-		}
-		return context
 	

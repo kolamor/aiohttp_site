@@ -1,5 +1,5 @@
 
-from .views import frontend, auth, admin
+from .views import frontend, auth, admin, ws_server
 from aiohttp import web
 import os
 
@@ -25,9 +25,10 @@ def setup_routes(app):
 					web.get('/admin/news', admin.AdminNews, 			name='admin_news'),
 					web.get('/admin/news/{slug}', admin.AdminEditNews, name='admin_edit_news'),
 					web.post('/admin/news/{slug}', admin.AdminEditNews ),
-					web.get('/admin/create_news', admin.CreateNews, name='create_news'),
-					
-					web.get('/websocket/ws', frontend.Chat, name='chat'),
+					web.get('/admin/create_news', admin.AdminCreateNews, name='create_news'),
+					web.post('/admin/create_news', admin.AdminCreateNews),
+
+					web.get('/websocket/ws', ws_server.WS, name='ws'),
 					])
 
 

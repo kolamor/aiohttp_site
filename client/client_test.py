@@ -46,8 +46,10 @@ class ClientWS():
 
 async def main():
 	client = await ClientWS._init()
-	print('---', client)
+	
 	await client.test_ws()
+
+	
 
 if __name__ == '__main__':
 	loop = asyncio.get_event_loop()
