@@ -7,7 +7,8 @@ class ClientWS():
 	test_json = { "test" : "test"}
 	url = "http://localhost:5000/websocket/ws"
 
-	
+
+
 
 	@classmethod
 	async def _init(cls, **kwargs):
@@ -26,6 +27,7 @@ class ClientWS():
 
 	async def _fetch(self, session):
 		async with session.ws_connect(self.url) as ws:
+
 			await ws.send_json(self.send_json, compress=None, dumps=json.dumps)
 			print('Запрос: ', self.send_json)
 			async for msg in ws:
@@ -46,18 +48,17 @@ class ClientWS():
 
 async def main():
 	client = await ClientWS._init()
-	
+
 	await client.test_ws()
 
-	
+
 
 if __name__ == '__main__':
 	loop = asyncio.get_event_loop()
 	task = [
 			loop.create_task(main()),
-			
+
 		]
 	wait_tasks = asyncio.wait(task)
 	loop.run_until_complete(wait_tasks)
 	# loop.run_until_complete(main())
-		
