@@ -5,7 +5,7 @@
     {% block head %}
         <meta charset="UTF-8">
         <title>{{ site_name }}</title>
-        
+
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
@@ -14,9 +14,9 @@
 <body>
 
 {% block nav %}
-	
+
 	<div class="container">
-		
+
 
 			<nav class="navbar navbar-expand-lg navbar-light bg-light">
   <a class="navbar-brand" href="#">Navbar</a>
@@ -53,12 +53,26 @@
     </form>
   </div>
 </nav>
-			
-		
-		
+
+
+
 	</div>
 
 {% endblock %}
+
+<form>
+  <input type="text" name="sss">
+
+  <button>dd</button>
+
+</form>
+
+{% for r in res %}
+  {{r}} ------------- {{res[r]|safe}}
+</br>
+{%endfor%}
+
+
 
 
 

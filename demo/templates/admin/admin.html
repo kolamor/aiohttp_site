@@ -14,35 +14,35 @@ adminka
 			<div class="col-6">
 				<div class="shadow-lg p-3 mb-5 bg-white rounded">Аунтификация
 				</div>
-				
+
 			</div>
 			<div class="col-6">
-				<div class="shadow-lg p-3 mb-5 bg-white rounded">Вы вошли как 
+				<div class="shadow-lg p-3 mb-5 bg-white rounded">Вы вошли как
 					<strong>{{ session.user }}</strong>
-					
+
 				</div>
 			</div>
-			
+
 		</div>
 
 	</div>
 		{% block auth1 %}
 	<div class="container">
-		
+
 		<div class="row">
-			
+
 			<div class="col-6">
-				
+
 				<div class="shadow p-3 mb-5 bg-white rounded">
 
 					<a href="{{ url ('admin_user') }}">users</a>
 				</div>
-				
+
 			</div>
-			
-			
+
+
 		</div>
-		
+
 
 	</div>
 		{% endblock %}
@@ -53,23 +53,55 @@ adminka
 {% block news %}
 
 <div class="container">
-		
-		<div class="row">
-			
-			<div class="col-6">
-				
-				<div class="shadow p-3 mb-5 bg-white rounded">
 
-					<a href="{{ url ('admin_news') }}">news</a>
-				</div>
-				
+	<div class="row">
+
+		<div class="col-6">
+
+			<div class="shadow p-3 mb-5 bg-white rounded">
+
+				<a href="{{ url ('admin_news') }}">news</a>
 			</div>
-			
-			
+
 		</div>
-		
 
 	</div>
+
+</div>
+
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-6">
+
+			<div class="shadow p-3 mb-5 bg-white rounded">
+
+				<a href="{{ url ('admin_platform') }}">platform</a>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>
+
+<div class="container">
+
+	<div class="row">
+
+		<div class="col-6">
+
+			<div class="shadow p-3 mb-5 bg-white rounded">
+
+				<a href="{{ url ('admin_xbox360') }}">xbox360</a>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>
 {% endblock %}
 
 
